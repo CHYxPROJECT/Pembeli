@@ -12,7 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
     <style>
-        /* CSS tetap sama seperti sebelumnya */
         :root {
             --primary-color: #ff3333;
             --secondary-color: #1a0000;
@@ -338,16 +337,15 @@
     </div>
 
     <script>
-        // Firebase configuration - GANTI DENGAN CONFIG ANDA
         // Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyCX4AniDndhJTPrMx8HdTQt1BXvZX1",
-    authDomain: "nana-776ae.firebaseapp.com",
-    projectId: "nana-776ae",
-    storageBucket: "nana-776ae.firebasestorage.app",
-    messagingSenderId: "856842447495",
-    appId: "1:856842447495:web:db58e1233dc5e88b6c9a9f"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyCX4AniDndhJTPrMx8HdTQt1BXvZX1",
+            authDomain: "nana-776ae.firebaseapp.com",
+            projectId: "nana-776ae",
+            storageBucket: "nana-776ae.firebasestorage.app",
+            messagingSenderId: "856842447495",
+            appId: "1:856842447495:web:db58e1233dc5e88b6c9a9f"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -399,6 +397,50 @@ const firebaseConfig = {
             });
         }
 
+        // Function to send Telegram notification
+        async function sendTelegramNotification(orderData) {
+            try {
+                const botToken = '8356659947:AAE0Nn45JJHjyQ1srpHwmVk27J5nwWam5YQ';
+                // GANTI DENGAN CHAT_ID ANDA
+                const chatId = '6372201969'; 
+                
+                const message = `🛒 ADA PESANAN BARU!
+
+📋 Detail Pesanan:
+👤 Nama: ${orderData.buyerName}
+📧 Email: ${orderData.buyerEmail}
+💾 Panel: ${orderData.panelSize}
+💰 Harga: Rp ${parseInt(orderData.panelPrice).toLocaleString('id-ID')}
+📅 Tanggal: ${new Date().toLocaleString('id-ID')}
+🆔 Order ID: ${orderData.orderId}
+
+⚡ Segera proses pesanan ini!`;
+
+                const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+                
+                const response = await fetch(telegramUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.ok) {
+                    console.log('Notifikasi Telegram terkirim!');
+                } else {
+                    console.error('Gagal mengirim notifikasi Telegram:', result);
+                }
+            } catch (error) {
+                console.error('Error sending Telegram notification:', error);
+            }
+        }
+
         // Kirim pesanan ke Firebase
         document.getElementById('purchase-form').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -424,8 +466,8 @@ const firebaseConfig = {
                     // Buat ID pesanan unik
                     const orderId = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
                     
-                    // Simpan ke Firebase
-                    await db.collection('orders').doc(orderId).set({
+                    // Data pesanan
+                    const orderData = {
                         buyerName: buyerName,
                         buyerEmail: buyerEmail,
                         panelSize: selectedPanel.size,
@@ -435,7 +477,13 @@ const firebaseConfig = {
                         status: 'pending',
                         orderDate: new Date().toISOString(),
                         orderId: orderId
-                    });
+                    };
+                    
+                    // Simpan ke Firebase
+                    await db.collection('orders').doc(orderId).set(orderData);
+                    
+                    // KIRIM NOTIFIKASI TELEGRAM
+                    await sendTelegramNotification(orderData);
                     
                     // Simpan order ID untuk tracking
                     localStorage.setItem('currentOrderId', orderId);
