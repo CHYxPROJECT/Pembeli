@@ -2,604 +2,704 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beli Panel - 9XV4 TR4SH</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Virtual iPhone</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
     <style>
-        :root {
-            --primary-color: #ff3333;
-            --secondary-color: #1a0000;
-            --accent-color: #4a0000;
-            --text-color: #f0f2f5;
-            --dark-bg: #000000;
-            --glow-color: #cc0000;
+        /* --- General & Body Styling --- */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            overflow: hidden; 
+            user-select: none;
+            touch-action: pan-y;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
+        /* Phone Container */
+        .phone-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        /* --- Phone Frame (iPhone Style) --- */
+        .virtual-phone {
+            width: 375px; 
+            height: 812px; 
+            background-color: #000;
+            border-radius: 40px;
+            box-shadow: 
+                0 0 0 8px #333,
+                0 20px 60px rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            position: relative;
+            overflow: hidden;
             box-sizing: border-box;
         }
 
-        body {
-            background: var(--dark-bg);
-            color: var(--text-color);
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #1a0000 0%, #4a0000 100%);
-            border-radius: 15px;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 0 20px rgba(255, 51, 51, 0.5);
-        }
-
-        .header h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 36px;
-            color: var(--primary-color);
-            text-shadow: 0 0 10px var(--glow-color);
-            letter-spacing: 2px;
-        }
-
-        .card {
-            background: linear-gradient(135deg, #1a0000 0%, #4a0000 100%);
-            border-radius: 15px;
-            padding: 20px;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 0 15px rgba(255, 51, 51, 0.3);
-            margin-bottom: 20px;
-        }
-
-        .card h2 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 22px;
-            border-bottom: 1px solid rgba(255, 51, 51, 0.3);
-            padding-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #ff9999;
-            font-weight: 600;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid rgba(255, 51, 51, 0.3);
-            border-radius: 5px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 5px rgba(255, 51, 51, 0.5);
-        }
-
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        /* Physical Buttons */
+        .physical-buttons {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 30px;
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 100px 0;
+        }
+
+        .buttons-left {
+            left: -40px;
+        }
+
+        .buttons-right {
+            right: -40px;
+        }
+
+        .volume-button, .power-button {
+            background: #333;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .volume-up {
+            width: 4px;
+            height: 60px;
+        }
+
+        .volume-down {
+            width: 4px;
+            height: 60px;
             margin-top: 10px;
         }
 
-        .btn-primary {
-            background: var(--primary-color);
-            color: var(--dark-bg);
-            box-shadow: 0 0 15px rgba(255, 51, 51, 0.5);
+        .power-button {
+            width: 4px;
+            height: 80px;
         }
 
-        .btn-primary:hover {
-            background: #ff5555;
-            box-shadow: 0 0 20px #ff5555;
-            transform: translateY(-2px);
+        .bezel {
+            width: 100%;
+            height: 100%;
+            background-color: #000; 
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
         }
 
-        .btn-secondary {
-            background: var(--accent-color);
-            color: var(--text-color);
-            box-shadow: 0 0 10px rgba(255, 51, 51, 0.2);
+        /* --- Notch & Status Bar --- */
+        .notch {
+            width: 150px;
+            height: 28px;
+            background-color: #000;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
         }
 
-        .btn-secondary:hover {
-            background: #6a0000;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #cc0000;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #ff0000;
-            transform: translateY(-2px);
-        }
-
-        .panel-option {
+        .status-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 51, 51, 0.2);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .panel-option:hover {
-            border-color: var(--primary-color);
-            background: rgba(255, 51, 51, 0.1);
-        }
-
-        .panel-option.selected {
-            border-color: var(--primary-color);
-            background: rgba(255, 51, 51, 0.2);
-            box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
-        }
-
-        .panel-price {
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .account-data {
-            background: rgba(0, 255, 0, 0.1);
-            border: 1px solid #00cc00;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-        }
-
-        .account-data h3 {
-            color: #00cc00;
-            margin-bottom: 10px;
-        }
-
-        .status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: 5px 20px;
+            font-size: 14px;
+            color: white;
             font-weight: 600;
+            height: 25px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: calc(100% - 40px);
+            z-index: 90;
+            pointer-events: none;
         }
 
-        .status-pending {
-            background: #ff9900;
-            color: black;
+        /* --- Screen Container --- */
+        .screen-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
         }
-
-        .status-completed {
-            background: #00cc00;
-            color: black;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .order-actions {
+        
+        /* --- Individual Screens --- */
+        .phone-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            flex-direction: column;
+            color: white;
+            overflow: hidden;
         }
 
-        .loading {
+        /* --- Lock Screen --- */
+        #lock-screen {
+            background-image: url('https://d.top4top.io/p_36008rpcc0.jpg');
+            justify-content: flex-start;
+            z-index: 10;
+            transform: translateY(0);
+            transition: transform 0.4s ease-out;
+        }
+        #lock-screen.unlocked {
+            transform: translateY(-100%);
+        }
+
+        .lock-time {
+            font-size: 72px;
+            font-weight: 200;
+            margin-top: 120px;
             text-align: center;
-            padding: 20px;
-            color: #ff9999;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        .lock-date {
+            font-size: 20px;
+            margin-top: 5px;
+            font-weight: 400;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .swipe-hint {
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 16px;
+            opacity: 0.8;
+            animation: pulse-swipe 1.5s infinite;
+        }
+        @keyframes pulse-swipe {
+            0%, 100% { transform: translateY(0); opacity: 0.8; }
+            50% { transform: translateY(-10px); opacity: 1; }
         }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 28px;
-            }
-            
-            .panel-option {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .panel-price {
-                margin-top: 5px;
-            }
-            
-            .order-actions {
-                flex-direction: column;
-            }
+        /* --- Home Screen Pages --- */
+        #home-screen-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            transition: transform 0.4s ease-out;
+        }
+
+        .home-page {
+            flex-shrink: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 70px 15px 100px 15px;
+            align-content: start;
+            justify-items: center;
+            position: relative;
+        }
+
+        /* Wallpaper untuk setiap halaman home screen */
+        #home-page-1 {
+            background-image: url('https://e.top4top.io/p_36009fupl1.jpg');
+        }
+        #home-page-2 {
+            background-image: url('https://e.top4top.io/p_36009fupl1.jpg');
+        }
+        #home-page-3 {
+            background-image: url('https://e.top4top.io/p_36009fupl1.jpg');
+        }
+
+        /* --- Ikon Aplikasi yang Disesuaikan --- */
+        .app-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white; 
+            font-size: 10px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+        }
+        .app-icon:active {
+            transform: scale(0.9);
+        }
+        .app-icon::before {
+            content: attr(data-icon);
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+
+        /* Dock (Bottom fixed bar) */
+        .dock {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 330px;
+            height: 70px;
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .dock .app-icon {
+            background-color: transparent !important;
+            box-shadow: none;
+            width: 60px;
+            height: 60px;
+            color: white; 
+        }
+
+        /* Khusus untuk ikon yang menggunakan warna kustom */
+        .dock .app-icon[data-label="Phone"]::before { color: #5cb85c; }
+        .dock .app-icon[data-label="Safari"]::before { color: #4b80c1; } 
+        .dock .app-icon[data-label="Messages"]::before { color: #3498db; }
+        .dock .app-icon[data-label="Music"]::before { color: #ff5e3a; }
+        
+        /* --- Home Bar --- */
+        .home-bar {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 130px;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            z-index: 100;
+        }
+
+        /* Battery indicator */
+        .battery {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .battery-level {
+            font-size: 12px;
+        }
+
+        /* App Screens */
+        .app-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            color: black;
+        }
+
+        .app-header {
+            height: 50px;
+            background: #f8f8f8;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .app-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: #007aff;
+            cursor: pointer;
+        }
+
+        .app-title {
+            margin-left: 15px;
+            font-weight: 600;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-shopping-cart"></i> BELI PANEL - 9XV4 TR4SH</h1>
-            <p>Pilih panel dan lakukan pembayaran</p>
+
+    <div class="phone-container">
+        <!-- Tombol fisik kiri (volume) -->
+        <div class="physical-buttons buttons-left">
+            <div class="volume-button volume-up"></div>
+            <div class="volume-button volume-down"></div>
         </div>
 
-        <div class="card" id="panel-selection">
-            <h2><i class="fas fa-th-large"></i> Pilih Ukuran Panel (Rp 1,000/GB)</h2>
-            <div id="panel-options-container">
-                <!-- Panel options will be generated by JavaScript -->
-            </div>
-        </div>
+        <div class="virtual-phone">
+            <div class="bezel">
+                <div class="notch"></div>
+                
+                <div class="status-bar">
+                    <span id="time-display">16:54</span>
+                    <div class="battery">
+                        <span class="battery-level">56%</span>
+                        <span>🔋</span>
+                    </div>
+                </div>
 
-        <div class="card hidden" id="order-form">
-            <h2><i class="fas fa-credit-card"></i> Form Pemesanan</h2>
-            <form id="purchase-form">
-                <div class="form-group">
-                    <label for="buyer-name">Nama Lengkap:</label>
-                    <input type="text" id="buyer-name" required placeholder="Masukkan nama lengkap">
+                <div id="lock-screen" class="phone-screen">
+                    <div class="lock-time" id="lock-time-display">16:54</div>
+                    <div class="lock-date" id="lock-date-display">Senin, 9 November</div>
+                    <div class="swipe-hint">Angkat untuk membuka</div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="buyer-email">Email:</label>
-                    <input type="email" id="buyer-email" required placeholder="Masukkan email">
-                </div>
-                
-                <div class="form-group">
-                    <label for="proof-image">Upload Bukti Transfer:</label>
-                    <input type="file" id="proof-image" accept="image/*" required>
-                    <small>Upload screenshot bukti transfer Anda</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="payment-note">Catatan Pembayaran:</label>
-                    <textarea id="payment-note" rows="3" placeholder="Tuliskan informasi tambahan tentang transfer (nama bank, nomor rekening, dll)"></textarea>
-                </div>
-                
-                <div id="selected-panel-info" style="padding: 15px; background: rgba(255,51,51,0.1); border-radius: 8px; margin-bottom: 15px;">
-                    <strong>Panel yang dipilih: </strong><span id="panel-type-display">-</span><br>
-                    <strong>Harga: </strong><span id="panel-price-display">-</span>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-paper-plane"></i> Kirim Pesanan
-                </button>
-            </form>
-        </div>
 
-        <div class="card hidden" id="order-status">
-            <h2><i class="fas fa-history"></i> Status Pesanan</h2>
-            <div id="status-content">
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Memuat status pesanan...</p>
+                <div class="screen-container" id="home-screen-container">
+                    <div id="home-screen-wrapper">
+                        
+                        <div id="home-page-1" class="home-page">
+                            <div class="app-icon" data-icon="📧" data-label="Mail" data-app="mail"></div> 
+                            <div class="app-icon" data-icon="🗓️" data-label="Calendar" data-app="calendar"></div>
+                            <div class="app-icon" data-icon="📸" data-label="Camera" data-app="camera"></div>
+                            <div class="app-icon" data-icon="🗺️" data-label="Maps" data-app="maps"></div>
+                            <div class="app-icon" data-icon="⚙️" data-label="Settings" data-app="settings"></div>
+                            <div class="app-icon" data-icon="📝" data-label="Notes" data-app="notes"></div>
+                            <div class="app-icon" data-icon="⏱️" data-label="Clock" data-app="clock"></div>
+                            <div class="app-icon" data-icon="🌈" data-label="Photos" data-app="photos"></div>
+                            <div class="app-icon" data-icon="☁️" data-label="Weather" data-app="weather"></div>
+                            <div class="app-icon" data-icon="🛒" data-label="App Store" data-app="appstore"></div>
+                        </div>
+
+                        <div id="home-page-2" class="home-page">
+                            <div class="app-icon" data-icon="▶️" data-label="YouTube" data-app="youtube"></div>
+                            <div class="app-icon" data-icon="📘" data-label="Facebook" data-app="facebook"></div>
+                            <div class="app-icon" data-icon="🟢" data-label="WhatsApp" data-app="whatsapp"></div>
+                            <div class="app-icon" data-icon="📷" data-label="Instagram" data-app="instagram"></div>
+                            <div class="app-icon" data-icon="🐦" data-label="Twitter" data-app="twitter"></div>
+                        </div>
+
+                        <div id="home-page-3" class="home-page">
+                            <div class="app-icon" data-icon="🎧" data-label="Spotify" data-app="spotify"></div>
+                            <div class="app-icon" data-icon="🕺" data-label="TikTok" data-app="tiktok"></div>
+                            <div class="app-icon" data-icon="🎮" data-label="Games" data-app="games"></div>
+                            <div class="app-icon" data-icon="📚" data-label="Books" data-app="books"></div>
+                            <div class="app-icon" data-icon="💼" data-label="Wallet" data-app="wallet"></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div id="account-data" class="account-data hidden">
-                <h3><i class="fas fa-check-circle"></i> Data Akun Anda Telah Dikirim!</h3>
-                <div id="account-details">
-                    <!-- Data akun akan ditampilkan di sini -->
+
+                <div class="dock">
+                    <div class="app-icon" data-icon="📞" data-label="Phone" data-app="phone"></div> 
+                    <div class="app-icon" data-icon="🧭" data-label="Safari" data-app="safari"></div>
+                    <div class="app-icon" data-icon="💬" data-label="Messages" data-app="messages"></div>
+                    <div class="app-icon" data-icon="🎵" data-label="Music" data-app="music"></div>
                 </div>
-            </div>
-            
-            <div class="order-actions">
-                <button id="check-status" class="btn btn-secondary">
-                    <i class="fas fa-sync"></i> Cek Status Terbaru
-                </button>
-                <button id="delete-order" class="btn btn-danger hidden">
-                    <i class="fas fa-trash"></i> Hapus Riwayat dan Pesan Lagi
-                </button>
+                
+                <div class="home-bar"></div>
             </div>
         </div>
 
-        <div class="card">
-            <h2><i class="fas fa-info-circle"></i> Informasi Pembayaran</h2>
-            <p>Transfer ke rekening berikut:</p>
-            <div style="padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 10px;">
-                <strong>Dana</strong><br>
-                <strong>No. Dana: 089699203630</strong><br>
-                <strong>By Nana</strong><br><br>
-                <em>Harap transfer sesuai dengan harga panel yang dipilih</em>
-            </div>
+        <!-- Tombol fisik kanan (power) -->
+        <div class="physical-buttons buttons-right">
+            <div class="power-button"></div>
+        </div>
+    </div>
+
+    <!-- App Screens -->
+    <div id="app-screen" class="app-screen">
+        <div class="app-header">
+            <button class="back-button">← Back</button>
+            <div class="app-title" id="app-title">App</div>
+        </div>
+        <div class="app-content" id="app-content">
+            <!-- Konten aplikasi akan dimuat di sini -->
         </div>
     </div>
 
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCX4AniDndhJTPrMx8HdTQt1BXvZX1",
-            authDomain: "nana-776ae.firebaseapp.com",
-            projectId: "nana-776ae",
-            storageBucket: "nana-776ae.firebasestorage.app",
-            messagingSenderId: "856842447495",
-            appId: "1:856842447495:web:db58e1233dc5e88b6c9a9f"
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            const phone = document.querySelector('.virtual-phone');
+            const lockScreen = document.getElementById('lock-screen');
+            const homeScreenContainer = document.getElementById('home-screen-container');
+            const homeScreenWrapper = document.getElementById('home-screen-wrapper');
+            const homePages = document.querySelectorAll('.home-page');
+            const timeDisplay = document.getElementById('time-display');
+            const lockTimeDisplay = document.getElementById('lock-time-display');
+            const lockDateDisplay = document.getElementById('lock-date-display');
+            const appScreen = document.getElementById('app-screen');
+            const appTitle = document.getElementById('app-title');
+            const appContent = document.getElementById('app-content');
+            const backButton = document.querySelector('.back-button');
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+            let isLocked = true;
+            let currentHomePage = 0; 
 
-        let selectedPanel = null;
-        let currentOrderId = null;
+            // --- 1. Fungsi Jam & Tanggal ---
+            function updateDateTime() {
+                const now = new Date();
+                const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
+                const dateOptions = { weekday: 'long', month: 'long', day: 'numeric' };
 
-        // Generate panel options from 1GB to 10GB, price 1000 per GB
-        function generatePanelOptions() {
-            const container = document.getElementById('panel-options-container');
-            for (let i = 1; i <= 10; i++) {
-                const price = i * 1000;
-                const option = document.createElement('div');
-                option.className = 'panel-option';
-                option.dataset.size = i;
-                option.dataset.price = price;
-                option.innerHTML = `
-                    <div>
-                        <strong>Panel ${i} GB</strong>
-                        <p>${i} GB storage, support 24/7</p>
-                    </div>
-                    <div class="panel-price">Rp ${price.toLocaleString('id-ID')}</div>
-                `;
-                container.appendChild(option);
+                const time = now.toLocaleTimeString('en-GB', timeOptions); 
+                const date = now.toLocaleDateString('id-ID', dateOptions);
+
+                timeDisplay.textContent = time; 
+                lockTimeDisplay.textContent = time;
+                lockDateDisplay.textContent = date;
             }
 
-            // Add event listeners to panel options
-            document.querySelectorAll('.panel-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    document.querySelectorAll('.panel-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    
-                    this.classList.add('selected');
-                    selectedPanel = {
-                        size: this.dataset.size + ' GB',
-                        price: this.dataset.price
-                    };
-                    
-                    document.getElementById('panel-selection').classList.add('hidden');
-                    document.getElementById('order-form').classList.remove('hidden');
-                    
-                    document.getElementById('panel-type-display').textContent = 
-                        `Panel ${selectedPanel.size}`;
-                    document.getElementById('panel-price-display').textContent = 
-                        'Rp ' + parseInt(selectedPanel.price).toLocaleString('id-ID');
-                });
-            });
-        }
+            setInterval(updateDateTime, 1000);
+            updateDateTime(); 
 
-        // Function to send Telegram notification
-        async function sendTelegramNotification(orderData) {
-            try {
-                const botToken = '8356659947:AAE0Nn45JJHjyQ1srpHwmVk27J5nwWam5YQ';
-                // GANTI DENGAN CHAT_ID ANDA
-                const chatId = '6372201969'; 
-                
-                const message = `🛒 ADA PESANAN BARU!
+            // --- 2. Lock Screen Swipe Up ---
+            let startY = 0;
+            let currentY = 0;
+            let isSwipingLock = false;
 
-📋 Detail Pesanan:
-👤 Nama: ${orderData.buyerName}
-📧 Email: ${orderData.buyerEmail}
-💾 Panel: ${orderData.panelSize}
-💰 Harga: Rp ${parseInt(orderData.panelPrice).toLocaleString('id-ID')}
-📅 Tanggal: ${new Date().toLocaleString('id-ID')}
-🆔 Order ID: ${orderData.orderId}
-
-⚡ Segera proses pesanan ini!`;
-
-                const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-                
-                const response = await fetch(telegramUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
-                });
-                
-                const result = await response.json();
-                if (result.ok) {
-                    console.log('Notifikasi Telegram terkirim!');
-                } else {
-                    console.error('Gagal mengirim notifikasi Telegram:', result);
-                }
-            } catch (error) {
-                console.error('Error sending Telegram notification:', error);
-            }
-        }
-
-        // Kirim pesanan ke Firebase
-        document.getElementById('purchase-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const buyerName = document.getElementById('buyer-name').value;
-            const buyerEmail = document.getElementById('buyer-email').value;
-            const proofImage = document.getElementById('proof-image').files[0];
-            const paymentNote = document.getElementById('payment-note').value;
-            
-            if (!selectedPanel) {
-                alert('Pilih panel terlebih dahulu!');
-                return;
-            }
-            
-            if (!proofImage) {
-                alert('Upload bukti transfer terlebih dahulu!');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    // Buat ID pesanan unik
-                    const orderId = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-                    
-                    // Data pesanan
-                    const orderData = {
-                        buyerName: buyerName,
-                        buyerEmail: buyerEmail,
-                        panelSize: selectedPanel.size,
-                        panelPrice: selectedPanel.price,
-                        proofImage: e.target.result,
-                        paymentNote: paymentNote,
-                        status: 'pending',
-                        orderDate: new Date().toISOString(),
-                        orderId: orderId
-                    };
-                    
-                    // Simpan ke Firebase
-                    await db.collection('orders').doc(orderId).set(orderData);
-                    
-                    // KIRIM NOTIFIKASI TELEGRAM
-                    await sendTelegramNotification(orderData);
-                    
-                    // Simpan order ID untuk tracking
-                    localStorage.setItem('currentOrderId', orderId);
-                    currentOrderId = orderId;
-                    
-                    // Tampilkan status pesanan
-                    document.getElementById('order-form').classList.add('hidden');
-                    document.getElementById('order-status').classList.remove('hidden');
-                    
-                    // Listen for real-time updates
-                    setupOrderListener(orderId);
-                    
-                } catch (error) {
-                    console.error('Error saving order:', error);
-                    alert('Terjadi error saat mengirim pesanan. Coba lagi.');
-                }
-            };
-            reader.readAsDataURL(proofImage);
-        });
-
-        // Setup real-time listener untuk order
-        function setupOrderListener(orderId) {
-            return db.collection('orders').doc(orderId).onSnapshot((doc) => {
-                if (doc.exists) {
-                    const order = doc.data();
-                    updateOrderStatus(order);
+            lockScreen.addEventListener('touchstart', (e) => {
+                if (isLocked) {
+                    startY = e.touches[0].clientY;
+                    isSwipingLock = true;
+                    lockScreen.style.transition = 'none';
                 }
             });
-        }
 
-        // Cek status pesanan manual
-        document.getElementById('check-status').addEventListener('click', async function() {
-            if (currentOrderId) {
-                try {
-                    const doc = await db.collection('orders').doc(currentOrderId).get();
-                    if (doc.exists) {
-                        updateOrderStatus(doc.data());
-                        alert('Status diperbarui!');
+            lockScreen.addEventListener('touchmove', (e) => {
+                if (isLocked && isSwipingLock) {
+                    currentY = e.touches[0].clientY;
+                    const diffY = startY - currentY; 
+                    if (diffY > 0) {
+                        const translateY = Math.min(diffY, lockScreen.offsetHeight);
+                        lockScreen.style.transform = `translateY(-${translateY}px)`;
                     }
-                } catch (error) {
-                    console.error('Error checking status:', error);
                 }
-            }
-        });
+            });
 
-        // Hapus riwayat pesanan
-        document.getElementById('delete-order').addEventListener('click', function() {
-            if (confirm('Apakah Anda yakin ingin menghapus riwayat pesanan ini? Anda dapat memesan lagi setelah menghapus.')) {
-                localStorage.removeItem('currentOrderId');
-                currentOrderId = null;
-                
-                document.getElementById('order-status').classList.add('hidden');
-                document.getElementById('panel-selection').classList.remove('hidden');
-                selectedPanel = null;
-                document.getElementById('purchase-form').reset();
-                
-                alert('Riwayat pesanan telah dihapus. Anda dapat memesan lagi.');
-            }
-        });
+            lockScreen.addEventListener('touchend', () => {
+                if (isLocked && isSwipingLock) {
+                    const diffY = startY - currentY;
+                    lockScreen.style.transition = 'transform 0.4s ease-out';
+                    
+                    if (diffY > lockScreen.offsetHeight * 0.2) { 
+                        lockScreen.classList.add('unlocked');
+                        isLocked = false;
+                        setTimeout(() => {
+                            lockScreen.style.display = 'none';
+                        }, 400); 
+                    } else {
+                        lockScreen.style.transform = `translateY(0)`;
+                    }
+                    isSwipingLock = false;
+                }
+            });
 
-        // Update status pesanan
-        function updateOrderStatus(order) {
-            const statusContent = document.getElementById('status-content');
-            const accountData = document.getElementById('account-data');
-            const accountDetails = document.getElementById('account-details');
-            const deleteOrderBtn = document.getElementById('delete-order');
-            
-            if (order.status === 'completed' && order.accountData) {
-                statusContent.innerHTML = `
-                    <p>Pesanan Anda telah selesai diproses!</p>
-                    <div class="status status-completed">SELESAI</div>
-                    <p style="margin-top: 10px;"><small>Pesanan ID: ${order.orderId}</small></p>
-                `;
-                
-                accountData.classList.remove('hidden');
-                accountDetails.innerHTML = `
-                    <p><strong>Username:</strong> ${order.accountData.username}</p>
-                    <p><strong>Password:</strong> ${order.accountData.password}</p>
-                    <p><strong>Domain:</strong> ${order.accountData.domain}</p>
-                    ${order.accountData.notes ? `<p><strong>Catatan:</strong> ${order.accountData.notes}</p>` : ''}
-                    <p><small>Dikirim pada: ${new Date(order.accountData.sentAt).toLocaleString('id-ID')}</small></p>
-                `;
-                
-                deleteOrderBtn.classList.remove('hidden');
-            } else {
-                statusContent.innerHTML = `
-                    <p>Menunggu konfirmasi dari penjual...</p>
-                    <div class="status status-pending">MENUNGGU</div>
-                    <p style="margin-top: 10px;"><small>Pesanan ID: ${order.orderId}</small></p>
-                `;
-                accountData.classList.add('hidden');
-                deleteOrderBtn.classList.add('hidden');
-            }
-        }
+            // --- 3. Home Screen Horizontal Swipe ---
+            let startX = 0;
+            let currentX = 0;
+            let isSwipingHome = false;
+            let initialTranslateX = 0;
 
-        // Cek apakah ada pesanan yang sedang diproses
-        document.addEventListener('DOMContentLoaded', function() {
-            generatePanelOptions();
-            
-            const savedOrderId = localStorage.getItem('currentOrderId');
-            if (savedOrderId) {
-                currentOrderId = savedOrderId;
-                document.getElementById('panel-selection').classList.add('hidden');
-                document.getElementById('order-form').classList.add('hidden');
-                document.getElementById('order-status').classList.remove('hidden');
+            // Set width untuk home screen wrapper dan setiap page
+            homeScreenWrapper.style.width = `${homePages.length * 100}%`;
+            homePages.forEach(page => {
+                page.style.width = `${100 / homePages.length}%`;
+            });
+
+            homeScreenContainer.addEventListener('touchstart', (e) => {
+                if (!isLocked) {
+                    startX = e.touches[0].clientX;
+                    isSwipingHome = true;
+                    const style = window.getComputedStyle(homeScreenWrapper);
+                    const matrix = new DOMMatrix(style.transform);
+                    initialTranslateX = matrix.m41;
+                    homeScreenWrapper.style.transition = 'none';
+                }
+            });
+
+            homeScreenContainer.addEventListener('touchmove', (e) => {
+                if (!isLocked && isSwipingHome) {
+                    currentX = e.touches[0].clientX;
+                    const diffX = currentX - startX;
+                    let newTranslateX = initialTranslateX + diffX;
+
+                    const screenWidth = homeScreenContainer.offsetWidth;
+                    const maxRight = 0;
+                    const maxLeft = -(homePages.length - 1) * screenWidth;
+
+                    newTranslateX = Math.max(maxLeft, Math.min(maxRight, newTranslateX));
+                    homeScreenWrapper.style.transform = `translateX(${newTranslateX}px)`;
+                }
+            });
+
+            homeScreenContainer.addEventListener('touchend', () => {
+                if (!isLocked && isSwipingHome) {
+                    isSwipingHome = false;
+                    homeScreenWrapper.style.transition = 'transform 0.4s ease-out';
+                    
+                    const screenWidth = homeScreenContainer.offsetWidth;
+                    const diffX = currentX - startX;
+                    const currentTranslate = parseFloat(homeScreenWrapper.style.transform.split('(')[1]) || 0;
+                    
+                    if (Math.abs(diffX) > 50) {
+                        if (diffX < 0 && currentHomePage < homePages.length - 1) {
+                            currentHomePage++;
+                        } else if (diffX > 0 && currentHomePage > 0) {
+                            currentHomePage--;
+                        }
+                    }
+                    
+                    homeScreenWrapper.style.transform = `translateX(-${currentHomePage * screenWidth}px)`;
+                }
+            });
+
+            // --- 4. Fungsi untuk membuka aplikasi ---
+            function openApp(appName, appLabel) {
+                appTitle.textContent = appLabel;
+                appScreen.style.display = 'flex';
                 
-                // Setup listener untuk order yang ada
-                setupOrderListener(savedOrderId);
+                // Konten berdasarkan aplikasi
+                let content = '';
+                switch(appName) {
+                    case 'phone':
+                        content = `
+                            <h2>Telepon</h2>
+                            <p>Kontak dan riwayat panggilan akan muncul di sini.</p>
+                            <div style="margin-top: 20px;">
+                                <input type="text" placeholder="Cari kontak..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                            </div>
+                        `;
+                        break;
+                    case 'safari':
+                        content = `
+                            <h2>Safari</h2>
+                            <p>Browser web akan muncul di sini.</p>
+                            <div style="margin-top: 20px;">
+                                <input type="text" placeholder="Cari atau masukkan alamat website..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                            </div>
+                        `;
+                        break;
+                    case 'messages':
+                        content = `
+                            <h2>Pesan</h2>
+                            <p>Percakapan pesan akan muncul di sini.</p>
+                            <div style="margin-top: 20px;">
+                                <div style="background: #f0f0f0; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                                    <strong>Anda:</strong> Halo!
+                                </div>
+                                <div style="background: #007aff; color: white; padding: 10px; border-radius: 5px; margin-bottom: 10px; text-align: right;">
+                                    <strong>Teman:</strong> Hai!
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    case 'music':
+                        content = `
+                            <h2>Musik</h2>
+                            <p>Pemutar musik akan muncul di sini.</p>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <div style="font-size: 48px; margin-bottom: 20px;">🎵</div>
+                                <h3>Lagu Sedang Diputar</h3>
+                                <p>Artist - Judul Lagu</p>
+                                <div style="margin-top: 20px;">
+                                    <button style="padding: 10px 20px; background: #007aff; color: white; border: none; border-radius: 5px; margin: 0 5px;">⏮️</button>
+                                    <button style="padding: 10px 20px; background: #007aff; color: white; border: none; border-radius: 5px; margin: 0 5px;">⏯️</button>
+                                    <button style="padding: 10px 20px; background: #007aff; color: white; border: none; border-radius: 5px; margin: 0 5px;">⏭️</button>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    case 'camera':
+                        content = `
+                            <h2>Kamera</h2>
+                            <p>Antarmuka kamera akan muncul di sini.</p>
+                            <div style="background: black; height: 300px; display: flex; justify-content: center; align-items: center; margin-top: 20px; border-radius: 10px;">
+                                <div style="color: white; text-align: center;">
+                                    <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
+                                    <p>Preview Kamera</p>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button style="width: 60px; height: 60px; border-radius: 50%; background: white; border: 4px solid #007aff; cursor: pointer;"></button>
+                            </div>
+                        `;
+                        break;
+                    default:
+                        content = `
+                            <h2>${appLabel}</h2>
+                            <p>Ini adalah halaman aplikasi ${appLabel}.</p>
+                            <p>Fitur aplikasi akan muncul di sini.</p>
+                        `;
+                }
                 
-                // Juga load data sekali
-                db.collection('orders').doc(savedOrderId).get().then((doc) => {
-                    if (doc.exists) {
-                        updateOrderStatus(doc.data());
+                appContent.innerHTML = content;
+            }
+
+            // --- 5. Event listener untuk ikon aplikasi ---
+            document.querySelectorAll('.app-icon').forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!isLocked) {
+                        const appLabel = icon.getAttribute('data-label');
+                        const appName = icon.getAttribute('data-app');
+                        openApp(appName, appLabel);
                     }
                 });
-            }
+            });
+
+            // --- 6. Tombol kembali ke home screen ---
+            backButton.addEventListener('click', () => {
+                appScreen.style.display = 'none';
+            });
+
+            // --- 7. Tombol power untuk mengunci layar ---
+            document.querySelector('.power-button').addEventListener('click', () => {
+                if (!isLocked) {
+                    appScreen.style.display = 'none';
+                    lockScreen.style.display = 'flex';
+                    lockScreen.classList.remove('unlocked');
+                    lockScreen.style.transform = 'translateY(0)';
+                    isLocked = true;
+                    
+                    // Reset ke home page pertama
+                    currentHomePage = 0;
+                    homeScreenWrapper.style.transform = 'translateX(0)';
+                }
+            });
+
+            // --- 8. Prevent default behavior untuk touch events ---
+            document.addEventListener('touchmove', (e) => {
+                if (e.scale !== 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
         });
     </script>
 </body>
