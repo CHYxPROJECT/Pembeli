@@ -1,1 +1,558 @@
-BY XORA
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beli Panel - 9XV4 TR4SH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* CSS tetap sama seperti sebelumnya */
+        :root {
+            --primary-color: #ff3333;
+            --secondary-color: #1a0000;
+            --accent-color: #4a0000;
+            --text-color: #f0f2f5;
+            --dark-bg: #000000;
+            --glow-color: #cc0000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text-color);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a0000 0%, #4a0000 100%);
+            border-radius: 15px;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.5);
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px var(--glow-color);
+            letter-spacing: 2px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #1a0000 0%, #4a0000 100%);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 22px;
+            border-bottom: 1px solid rgba(255, 51, 51, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ff9999;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 51, 51, 0.3);
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(255, 51, 51, 0.5);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--dark-bg);
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.5);
+        }
+
+        .btn-primary:hover {
+            background: #ff5555;
+            box-shadow: 0 0 20px #ff5555;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--accent-color);
+            color: var(--text-color);
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: #6a0000;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #cc0000;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff0000;
+            transform: translateY(-2px);
+        }
+
+        .panel-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 51, 51, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .panel-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(255, 51, 51, 0.1);
+        }
+
+        .panel-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(255, 51, 51, 0.2);
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+        }
+
+        .panel-price {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .account-data {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00cc00;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .account-data h3 {
+            color: #00cc00;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #ff9900;
+            color: black;
+        }
+
+        .status-completed {
+            background: #00cc00;
+            color: black;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #ff9999;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 28px;
+            }
+            
+            .panel-option {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .panel-price {
+                margin-top: 5px;
+            }
+            
+            .order-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shopping-cart"></i> BELI PANEL - 9XV4 TR4SH</h1>
+            <p>Pilih panel dan lakukan pembayaran</p>
+        </div>
+
+        <div class="card" id="panel-selection">
+            <h2><i class="fas fa-th-large"></i> Pilih Ukuran Panel (Rp 1,000/GB)</h2>
+            <div id="panel-options-container">
+                <!-- Panel options will be generated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="card hidden" id="order-form">
+            <h2><i class="fas fa-credit-card"></i> Form Pemesanan</h2>
+            <form id="purchase-form">
+                <div class="form-group">
+                    <label for="buyer-name">Nama Lengkap:</label>
+                    <input type="text" id="buyer-name" required placeholder="Masukkan nama lengkap">
+                </div>
+                
+                <div class="form-group">
+                    <label for="buyer-email">Email:</label>
+                    <input type="email" id="buyer-email" required placeholder="Masukkan email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="proof-image">Upload Bukti Transfer:</label>
+                    <input type="file" id="proof-image" accept="image/*" required>
+                    <small>Upload screenshot bukti transfer Anda</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment-note">Catatan Pembayaran:</label>
+                    <textarea id="payment-note" rows="3" placeholder="Tuliskan informasi tambahan tentang transfer (nama bank, nomor rekening, dll)"></textarea>
+                </div>
+                
+                <div id="selected-panel-info" style="padding: 15px; background: rgba(255,51,51,0.1); border-radius: 8px; margin-bottom: 15px;">
+                    <strong>Panel yang dipilih: </strong><span id="panel-type-display">-</span><br>
+                    <strong>Harga: </strong><span id="panel-price-display">-</span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Kirim Pesanan
+                </button>
+            </form>
+        </div>
+
+        <div class="card hidden" id="order-status">
+            <h2><i class="fas fa-history"></i> Status Pesanan</h2>
+            <div id="status-content">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Memuat status pesanan...</p>
+                </div>
+            </div>
+            
+            <div id="account-data" class="account-data hidden">
+                <h3><i class="fas fa-check-circle"></i> Data Akun Anda Telah Dikirim!</h3>
+                <div id="account-details">
+                    <!-- Data akun akan ditampilkan di sini -->
+                </div>
+            </div>
+            
+            <div class="order-actions">
+                <button id="check-status" class="btn btn-secondary">
+                    <i class="fas fa-sync"></i> Cek Status Terbaru
+                </button>
+                <button id="delete-order" class="btn btn-danger hidden">
+                    <i class="fas fa-trash"></i> Hapus Riwayat dan Pesan Lagi
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-info-circle"></i> Informasi Pembayaran</h2>
+            <p>Transfer ke rekening berikut:</p>
+            <div style="padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 10px;">
+                <strong>Dana</strong><br>
+                <strong>No. Dana: 089699203630</strong><br>
+                <strong>By XoraStr</strong><br><br>
+                <em>Harap transfer sesuai dengan harga panel yang dipilih</em>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration - GANTI DENGAN CONFIG ANDA
+        // Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCX4AniDndhJTPrMx8HdTQt1BXvZX1",
+    authDomain: "nana-776ae.firebaseapp.com",
+    projectId: "nana-776ae",
+    storageBucket: "nana-776ae.firebasestorage.app",
+    messagingSenderId: "856842447495",
+    appId: "1:856842447495:web:db58e1233dc5e88b6c9a9f"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let selectedPanel = null;
+        let currentOrderId = null;
+
+        // Generate panel options from 1GB to 10GB, price 1000 per GB
+        function generatePanelOptions() {
+            const container = document.getElementById('panel-options-container');
+            for (let i = 1; i <= 10; i++) {
+                const price = i * 1000;
+                const option = document.createElement('div');
+                option.className = 'panel-option';
+                option.dataset.size = i;
+                option.dataset.price = price;
+                option.innerHTML = `
+                    <div>
+                        <strong>Panel ${i} GB</strong>
+                        <p>${i} GB storage, support 24/7</p>
+                    </div>
+                    <div class="panel-price">Rp ${price.toLocaleString('id-ID')}</div>
+                `;
+                container.appendChild(option);
+            }
+
+            // Add event listeners to panel options
+            document.querySelectorAll('.panel-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.panel-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    this.classList.add('selected');
+                    selectedPanel = {
+                        size: this.dataset.size + ' GB',
+                        price: this.dataset.price
+                    };
+                    
+                    document.getElementById('panel-selection').classList.add('hidden');
+                    document.getElementById('order-form').classList.remove('hidden');
+                    
+                    document.getElementById('panel-type-display').textContent = 
+                        `Panel ${selectedPanel.size}`;
+                    document.getElementById('panel-price-display').textContent = 
+                        'Rp ' + parseInt(selectedPanel.price).toLocaleString('id-ID');
+                });
+            });
+        }
+
+        // Kirim pesanan ke Firebase
+        document.getElementById('purchase-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const buyerName = document.getElementById('buyer-name').value;
+            const buyerEmail = document.getElementById('buyer-email').value;
+            const proofImage = document.getElementById('proof-image').files[0];
+            const paymentNote = document.getElementById('payment-note').value;
+            
+            if (!selectedPanel) {
+                alert('Pilih panel terlebih dahulu!');
+                return;
+            }
+            
+            if (!proofImage) {
+                alert('Upload bukti transfer terlebih dahulu!');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    // Buat ID pesanan unik
+                    const orderId = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                    
+                    // Simpan ke Firebase
+                    await db.collection('orders').doc(orderId).set({
+                        buyerName: buyerName,
+                        buyerEmail: buyerEmail,
+                        panelSize: selectedPanel.size,
+                        panelPrice: selectedPanel.price,
+                        proofImage: e.target.result,
+                        paymentNote: paymentNote,
+                        status: 'pending',
+                        orderDate: new Date().toISOString(),
+                        orderId: orderId
+                    });
+                    
+                    // Simpan order ID untuk tracking
+                    localStorage.setItem('currentOrderId', orderId);
+                    currentOrderId = orderId;
+                    
+                    // Tampilkan status pesanan
+                    document.getElementById('order-form').classList.add('hidden');
+                    document.getElementById('order-status').classList.remove('hidden');
+                    
+                    // Listen for real-time updates
+                    setupOrderListener(orderId);
+                    
+                } catch (error) {
+                    console.error('Error saving order:', error);
+                    alert('Terjadi error saat mengirim pesanan. Coba lagi.');
+                }
+            };
+            reader.readAsDataURL(proofImage);
+        });
+
+        // Setup real-time listener untuk order
+        function setupOrderListener(orderId) {
+            return db.collection('orders').doc(orderId).onSnapshot((doc) => {
+                if (doc.exists) {
+                    const order = doc.data();
+                    updateOrderStatus(order);
+                }
+            });
+        }
+
+        // Cek status pesanan manual
+        document.getElementById('check-status').addEventListener('click', async function() {
+            if (currentOrderId) {
+                try {
+                    const doc = await db.collection('orders').doc(currentOrderId).get();
+                    if (doc.exists) {
+                        updateOrderStatus(doc.data());
+                        alert('Status diperbarui!');
+                    }
+                } catch (error) {
+                    console.error('Error checking status:', error);
+                }
+            }
+        });
+
+        // Hapus riwayat pesanan
+        document.getElementById('delete-order').addEventListener('click', function() {
+            if (confirm('Apakah Anda yakin ingin menghapus riwayat pesanan ini? Anda dapat memesan lagi setelah menghapus.')) {
+                localStorage.removeItem('currentOrderId');
+                currentOrderId = null;
+                
+                document.getElementById('order-status').classList.add('hidden');
+                document.getElementById('panel-selection').classList.remove('hidden');
+                selectedPanel = null;
+                document.getElementById('purchase-form').reset();
+                
+                alert('Riwayat pesanan telah dihapus. Anda dapat memesan lagi.');
+            }
+        });
+
+        // Update status pesanan
+        function updateOrderStatus(order) {
+            const statusContent = document.getElementById('status-content');
+            const accountData = document.getElementById('account-data');
+            const accountDetails = document.getElementById('account-details');
+            const deleteOrderBtn = document.getElementById('delete-order');
+            
+            if (order.status === 'completed' && order.accountData) {
+                statusContent.innerHTML = `
+                    <p>Pesanan Anda telah selesai diproses!</p>
+                    <div class="status status-completed">SELESAI</div>
+                    <p style="margin-top: 10px;"><small>Pesanan ID: ${order.orderId}</small></p>
+                `;
+                
+                accountData.classList.remove('hidden');
+                accountDetails.innerHTML = `
+                    <p><strong>Username:</strong> ${order.accountData.username}</p>
+                    <p><strong>Password:</strong> ${order.accountData.password}</p>
+                    <p><strong>Domain:</strong> ${order.accountData.domain}</p>
+                    ${order.accountData.notes ? `<p><strong>Catatan:</strong> ${order.accountData.notes}</p>` : ''}
+                    <p><small>Dikirim pada: ${new Date(order.accountData.sentAt).toLocaleString('id-ID')}</small></p>
+                `;
+                
+                deleteOrderBtn.classList.remove('hidden');
+            } else {
+                statusContent.innerHTML = `
+                    <p>Menunggu konfirmasi dari penjual...</p>
+                    <div class="status status-pending">MENUNGGU</div>
+                    <p style="margin-top: 10px;"><small>Pesanan ID: ${order.orderId}</small></p>
+                `;
+                accountData.classList.add('hidden');
+                deleteOrderBtn.classList.add('hidden');
+            }
+        }
+
+        // Cek apakah ada pesanan yang sedang diproses
+        document.addEventListener('DOMContentLoaded', function() {
+            generatePanelOptions();
+            
+            const savedOrderId = localStorage.getItem('currentOrderId');
+            if (savedOrderId) {
+                currentOrderId = savedOrderId;
+                document.getElementById('panel-selection').classList.add('hidden');
+                document.getElementById('order-form').classList.add('hidden');
+                document.getElementById('order-status').classList.remove('hidden');
+                
+                // Setup listener untuk order yang ada
+                setupOrderListener(savedOrderId);
+                
+                // Juga load data sekali
+                db.collection('orders').doc(savedOrderId).get().then((doc) => {
+                    if (doc.exists) {
+                        updateOrderStatus(doc.data());
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
