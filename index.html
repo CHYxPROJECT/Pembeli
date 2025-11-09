@@ -12,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
     <style>
-        /* CSS tetap sama seperti sebelumnya */
+        /* CSS tetap sama */
         :root {
             --primary-color: #ff3333;
             --secondary-color: #1a0000;
@@ -230,6 +230,15 @@
             color: #ff9999;
         }
 
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #ff9999;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 28px;
@@ -255,6 +264,10 @@
         <div class="header">
             <h1><i class="fas fa-shopping-cart"></i> BELI PANEL - 9XV4 TR4SH</h1>
             <p>Pilih panel dan lakukan pembayaran</p>
+        </div>
+
+        <div id="error-message" class="error-message hidden">
+            <!-- Error message akan muncul di sini -->
         </div>
 
         <div class="card" id="panel-selection">
@@ -338,23 +351,41 @@
     </div>
 
     <script>
-        // Firebase configuration - GANTI DENGAN CONFIG ANDA
         // Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyCX4AniDndhJTPrMx8HdTQt1BXvZX1",
-    authDomain: "nana-776ae.firebaseapp.com",
-    projectId: "nana-776ae",
-    storageBucket: "nana-776ae.firebasestorage.app",
-    messagingSenderId: "856842447495",
-    appId: "1:856842447495:web:db58e1233dc5e88b6c9a9f"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyCX4AniDndhJTPrMx8HdTQt1BXvZX1",
+            authDomain: "nana-776ae.firebaseapp.com",
+            projectId: "nana-776ae",
+            storageBucket: "nana-776ae.appspot.com", // Diubah ke .appspot.com
+            messagingSenderId: "856842447495",
+            appId: "1:856842447495:web:db58e1233dc5e88b6c9a9f"
+        };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("Firebase berhasil diinisialisasi");
+        } catch (error) {
+            console.error("Error inisialisasi Firebase:", error);
+            showError("Gagal menghubungkan ke database. Silakan refresh halaman.");
+        }
+        
         const db = firebase.firestore();
 
         let selectedPanel = null;
         let currentOrderId = null;
+
+        // Function untuk menampilkan error
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+            errorDiv.classList.remove('hidden');
+        }
+
+        // Function untuk menyembunyikan error
+        function hideError() {
+            document.getElementById('error-message').classList.add('hidden');
+        }
 
         // Generate panel options from 1GB to 10GB, price 1000 per GB
         function generatePanelOptions() {
@@ -399,9 +430,60 @@ const firebaseConfig = {
             });
         }
 
+        // Function to send Telegram notification
+        async function sendTelegramNotification(orderData) {
+            try {
+                const botToken = '8356659947:AAE0Nn45JJHjyQ1srpHwmVk27J5nwWam5YQ';
+                // GANTI DENGAN CHAT_ID ANDA - sementara di-disable dulu
+                const chatId = '6372201969'; 
+                
+                // Jika chat ID belum diganti, skip notifikasi
+                if (chatId === 'GANTI_DENGAN_CHAT_ID_ANDA') {
+                    console.log('Notifikasi Telegram skipped - chat ID belum diatur');
+                    return;
+                }
+                
+                const message = `🛒 ADA PESANAN BARU!
+
+📋 Detail Pesanan:
+👤 Nama: ${orderData.buyerName}
+📧 Email: ${orderData.buyerEmail}
+💾 Panel: ${orderData.panelSize}
+💰 Harga: Rp ${parseInt(orderData.panelPrice).toLocaleString('id-ID')}
+📅 Tanggal: ${new Date().toLocaleString('id-ID')}
+🆔 Order ID: ${orderData.orderId}
+
+⚡ Segera proses pesanan ini!`;
+
+                const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+                
+                const response = await fetch(telegramUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.ok) {
+                    console.log('Notifikasi Telegram terkirim!');
+                } else {
+                    console.error('Gagal mengirim notifikasi Telegram:', result);
+                }
+            } catch (error) {
+                console.error('Error sending Telegram notification:', error);
+            }
+        }
+
         // Kirim pesanan ke Firebase
         document.getElementById('purchase-form').addEventListener('submit', async function(e) {
             e.preventDefault();
+            hideError();
             
             const buyerName = document.getElementById('buyer-name').value;
             const buyerEmail = document.getElementById('buyer-email').value;
@@ -409,12 +491,12 @@ const firebaseConfig = {
             const paymentNote = document.getElementById('payment-note').value;
             
             if (!selectedPanel) {
-                alert('Pilih panel terlebih dahulu!');
+                showError('Pilih panel terlebih dahulu!');
                 return;
             }
             
             if (!proofImage) {
-                alert('Upload bukti transfer terlebih dahulu!');
+                showError('Upload bukti transfer terlebih dahulu!');
                 return;
             }
             
@@ -424,8 +506,8 @@ const firebaseConfig = {
                     // Buat ID pesanan unik
                     const orderId = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
                     
-                    // Simpan ke Firebase
-                    await db.collection('orders').doc(orderId).set({
+                    // Data pesanan
+                    const orderData = {
                         buyerName: buyerName,
                         buyerEmail: buyerEmail,
                         panelSize: selectedPanel.size,
@@ -435,7 +517,20 @@ const firebaseConfig = {
                         status: 'pending',
                         orderDate: new Date().toISOString(),
                         orderId: orderId
-                    });
+                    };
+                    
+                    console.log('Menyimpan data ke Firebase...', orderData);
+                    
+                    // Simpan ke Firebase
+                    await db.collection('orders').doc(orderId).set(orderData);
+                    console.log('Data berhasil disimpan ke Firebase');
+                    
+                    // KIRIM NOTIFIKASI TELEGRAM (optional)
+                    try {
+                        await sendTelegramNotification(orderData);
+                    } catch (telegramError) {
+                        console.warn('Notifikasi Telegram gagal, tapi data sudah tersimpan:', telegramError);
+                    }
                     
                     // Simpan order ID untuk tracking
                     localStorage.setItem('currentOrderId', orderId);
@@ -450,9 +545,15 @@ const firebaseConfig = {
                     
                 } catch (error) {
                     console.error('Error saving order:', error);
-                    alert('Terjadi error saat mengirim pesanan. Coba lagi.');
+                    showError('Terjadi error saat mengirim pesanan: ' + error.message);
                 }
             };
+            
+            reader.onerror = function(error) {
+                console.error('Error reading file:', error);
+                showError('Gagal membaca file gambar. Coba upload ulang.');
+            };
+            
             reader.readAsDataURL(proofImage);
         });
 
@@ -463,6 +564,8 @@ const firebaseConfig = {
                     const order = doc.data();
                     updateOrderStatus(order);
                 }
+            }, (error) => {
+                console.error('Error listening to order updates:', error);
             });
         }
 
@@ -474,9 +577,12 @@ const firebaseConfig = {
                     if (doc.exists) {
                         updateOrderStatus(doc.data());
                         alert('Status diperbarui!');
+                    } else {
+                        showError('Pesanan tidak ditemukan.');
                     }
                 } catch (error) {
                     console.error('Error checking status:', error);
+                    showError('Gagal memuat status pesanan.');
                 }
             }
         });
@@ -550,6 +656,9 @@ const firebaseConfig = {
                     if (doc.exists) {
                         updateOrderStatus(doc.data());
                     }
+                }).catch(error => {
+                    console.error('Error loading order:', error);
+                    showError('Gagal memuat data pesanan.');
                 });
             }
         });
